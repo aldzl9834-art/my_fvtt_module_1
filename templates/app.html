@@ -1,0 +1,137 @@
+<div class="gundog-smartphone">
+
+  <div id="screen-home" class="phone-screen active" style="background: linear-gradient(135deg, #1a2a6c, #11998e, #38ef7d); padding: 30px 20px;">
+    <div style="text-align: center; color: white; font-size: 32px; font-weight: bold; margin-bottom: 40px; text-shadow: 0px 2px 4px rgba(0,0,0,0.5); font-family: monospace;">
+      14:30
+    </div>
+    
+    <div class="app-grid">
+      <div class="app-icon" data-target="screen-list">
+        <div class="icon-img" style="background: #2ecc71;">💬</div>
+        <span>메신저</span>
+      </div>
+      <div class="app-icon" data-target="screen-bank">
+        <div class="icon-img" style="background: #f1c40f;">🏦</div>
+        <span>마르피사 은행</span>
+      </div>
+      <div class="app-icon" data-target="screen-browser">
+        <div class="icon-img" style="background: #3498db;">🌐</div>
+        <span>다크웹</span>
+      </div>
+    </div>
+  </div>
+  <div id="screen-list" class="phone-screen" style="display: none;">
+  <div id="screen-list" class="phone-screen active">
+    <div class="phone-header">마르피사 통신망</div>
+    <div class="my-profile-section">
+      <input type="file" id="my-profile-upload" style="display: none;" accept="image/*">
+      <img id="my-profile-img" src="" class="profile-thumb my-profile-pic">
+      <div class="my-profile-info">
+        <span id="my-profile-name" class="contact-name" style="font-weight: bold;">내 이름</span>
+        <span style="font-size: 11px; color: #7f8c8d;">프로필 사진을 클릭하여 변경</span>
+      </div>
+    </div>
+    <div class="contact-divider" style="display: flex; justify-content: space-between; align-items: center;">
+      <span>연락처 목록</span>
+      <div>
+        <button id="btn-my-id" style="background:none; border:none; cursor:pointer; font-size:14px; margin-right:5px;" title="내 연락처 확인">🆔</button>
+        <button id="btn-add-contact" style="background:none; border:none; cursor:pointer; font-size:14px;" title="연락처 추가">➕</button>
+      </div>
+    </div>
+    <div id="contact-list-container" style="overflow-y: auto; flex-grow: 1;"></div>
+  </div>
+
+  <div id="screen-chatlist" class="phone-screen" style="display: none;">
+    <div class="phone-header" style="display: flex; justify-content: space-between;">
+      <span>대화창 목록</span>
+      <button id="btn-new-group" style="background:none; border:none; cursor:pointer; font-size:16px;" title="새 그룹 채팅">💬+</button>
+    </div>
+    <div id="chatlist-container" style="overflow-y: auto; flex-grow: 1;"></div>
+  </div>
+
+  <div id="screen-profile" class="phone-screen" style="display: none;">
+    <div class="phone-header"><button class="btn-back">◀ 뒤로</button></div>
+    <div class="profile-center">
+      <img id="profile-img-large" src="" class="profile-large">
+      <h2 id="profile-name-large">이름</h2>
+      <button id="btn-open-chat">💬 대화창 열기</button>
+    </div>
+  </div>
+
+  <div id="screen-chat" class="phone-screen" style="display: none;">
+    <div class="phone-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <button class="btn-back">◀ 뒤로</button>
+        <span id="chat-room-name" style="margin-left: 5px;">이름</span>
+      </div>
+      <button id="btn-invite-group" style="background:none; border:none; cursor:pointer; font-size:14px;" title="인원 초대">👥+</button>
+    </div>
+    
+    <div id="chat-messages" class="chat-display"></div>
+    
+    <div class="chat-input-area">
+      <input type="file" id="file-input" style="display: none;" accept="image/*">
+      <button id="btn-image" class="icon-btn">📎</button>
+      
+      <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+      
+      <button id="btn-send">전송</button>
+    </div>
+  </div>
+
+  <div id="screen-bank" class="phone-screen" style="display: none;">
+    <div class="phone-header" style="background: #2980b9;">마르피사 은행</div>
+    <div class="bank-container" style="padding: 30px 20px; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; height: 100%;">
+      <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">나의 예금 잔액</div>
+      <div id="my-bank-balance" style="font-size: 32px; font-weight: bold; color: #2c3e50; margin-bottom: 40px; letter-spacing: -1px;">0 원</div>
+      
+      <button id="btn-open-transfer" style="width: 100%; padding: 16px; background: #3498db; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3); transition: 0.2s;">💸 송금하기</button>
+      
+      <div style="margin-top: 30px; font-size: 12px; color: #bdc3c7; text-align: center;">
+        안전한 거래를 위해 마르피사 통신망이<br>송금 내역을 암호화하여 보호합니다.
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-browser" class="phone-screen" style="display: none;">
+    <div class="phone-header" style="background: #2c3e50; display: flex; justify-content: center;">
+      <span>건독 보안 브라우저</span>
+    </div>
+    <div style="padding: 15px; background: #ecf0f1; height: 100%; display: flex; flex-direction: column;">
+      <div style="width: 100%; background: white; padding: 10px; border-radius: 20px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; color: #7f8c8d; font-size: 13px;">
+        🔒 http://gundog.pmc/board
+      </div>
+      
+      <div id="browser-content" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #95a5a6;">
+        <div style="font-size: 40px; margin-bottom: 10px;">📡</div>
+        <h3>네트워크 연결됨</h3>
+        <p style="font-size: 12px;">SQL 게시판 서버 연결 대기 중...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" data-target="screen-home">
+      <div style="font-size: 18px;">🏠</div><span>홈</span>
+    </div>
+    <div class="nav-item" data-target="screen-list">
+      <div style="font-size: 18px;">💬</div><span>메신저</span>
+    </div>
+    <div class="nav-item" data-target="screen-browser">
+      <div style="font-size: 18px;">🌐</div><span>인터넷</span>
+    </div>
+  </div>
+
+</div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" data-target="screen-list">
+      <div style="font-size: 18px;">👤</div><span>연락처</span>
+    </div>
+    <div class="nav-item" data-target="screen-chatlist">
+      <div style="font-size: 18px;">💬</div><span>대화창</span>
+    </div>
+    <div class="nav-item" data-target="screen-bank">
+      <div style="font-size: 18px;">🏦</div><span>은행</span>
+    </div>
+  </div>

@@ -1,0 +1,19 @@
+{
+  "id": "marpisa-gundog-smartphone",
+  "title": "marpisa-gundog-smartphone",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/smartphone.css"
+  ],
+  "flags": {
+    "canUpload": true
+  },
+  "description": "건독 시스템을 위한 스마트폰 연락처 및 채팅 모듈"
+}

@@ -1,0 +1,177 @@
+/* 스마트폰 전체 틀 */
+.gundog-smartphone {
+  width: 100%; height: 100%;
+  background-color: #f5f5f5;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+
+/* 화면 공통 */
+.phone-screen {
+  width: 100%; height: 100%;
+  position: absolute; top: 0; left: 0;
+  background: white;
+  display: flex; flex-direction: column;
+}
+
+/* 헤더 */
+.phone-header {
+  background: #2c3e50; color: white; /* 모던한 용병단 느낌의 남색 */
+  padding: 12px; font-weight: bold; font-size: 16px;
+  display: flex; align-items: center;
+}
+.btn-back { cursor: pointer; background: #34495e; color: white; border: none; padding: 5px 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+/* 연락처 목록 & 프로필 */
+.contact-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+.profile-thumb { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
+.profile-center { display: flex; flex-direction: column; align-items: center; padding-top: 50px; }
+.profile-large { width: 150px; height: 150px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover; border: 3px solid #ddd; }
+#btn-open-chat { margin-top: 30px; padding: 12px 24px; font-size: 16px; cursor: pointer; background: #f1c40f; border: none; border-radius: 8px; font-weight: bold; }
+
+/* 채팅방 메인 화면 */
+.chat-display { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background-color: #b2c7d9; }
+.chat-msg { max-width: 70%; padding: 10px 14px; border-radius: 12px; font-size: 14px; position: relative; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.msg-me { background: #ffeb33; align-self: flex-end; border-top-right-radius: 2px; }
+.msg-other { background: #ffffff; align-self: flex-start; border-top-left-radius: 2px; margin-left: 40px; }
+.msg-other .profile-pic-mini { width: 32px; height: 32px; border-radius: 50%; position: absolute; left: -42px; top: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); object-fit: cover; }
+
+/* ✅ 문제의 입력창 영역 (align-items: center 로 버튼 찌그러짐 완벽 해결) */
+.chat-input-area { 
+  display: flex; align-items: center; 
+  padding: 10px; background: #fff; border-top: 1px solid #ddd; gap: 8px; 
+}
+.icon-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 5px; }
+#chat-input { flex-grow: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
+#btn-send { padding: 8px 16px; background: #f1c40f; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; height: 38px; }
+
+/* --- 기존 CSS 맨 아래에 추가 --- */
+.my-profile-section { 
+  display: flex; align-items: center; padding: 20px 15px; 
+  background: #fff; border-bottom: 2px solid #ecf0f1; 
+}
+.my-profile-pic { 
+  border: 3px solid #f1c40f; width: 60px; height: 60px; 
+  cursor: pointer; transition: 0.2s; 
+}
+.my-profile-pic:hover { filter: brightness(0.8); }
+.my-profile-info { display: flex; flex-direction: column; }
+.contact-divider { 
+  padding: 5px 15px; background: #ecf0f1; color: #7f8c8d; 
+  font-size: 12px; font-weight: bold; 
+}
+
+.unread-badge {
+  background-color: #e74c3c; /* 눈에 띄는 빨간색 */
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.4);
+}
+
+/* --- 화면 덮어쓰기 및 하단 바 디자인 --- */
+#screen-list, #screen-chatlist { padding-bottom: 55px; } /* 하단 바 공간 확보 */
+#screen-profile, #screen-chat { z-index: 10; } /* 채팅방과 프로필은 전체 화면을 덮도록 설정 */
+
+.bottom-nav { 
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 55px; 
+  background: #f8f9fa; border-top: 1px solid #ddd; display: flex; z-index: 5;
+}
+.nav-item { 
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+  cursor: pointer; color: #95a5a6; transition: 0.2s; 
+}
+.nav-item span { font-size: 11px; margin-top: 2px; font-weight: bold; }
+.nav-item.active { color: #2c3e50; } /* 선택된 탭은 진한 남색으로 */
+
+/* --- 🌟 새로운 채팅 말풍선 레이아웃 (프로필+이름 포함) --- */
+.msg-row { 
+  display: flex; width: 100%; margin-bottom: 15px; 
+}
+.msg-row.me { 
+  flex-direction: row-reverse; /* 내 메시지는 오른쪽으로 쫙 붙입니다 */
+} 
+.msg-row.other { 
+  flex-direction: row; /* 상대 메시지는 왼쪽부터 차례대로 */
+}      
+
+/* 1. 프로필 이미지: 여백을 우측으로만 주고, 절대 찌그러지지 않게 고정합니다 */
+.msg-profile-pic { 
+  width: 38px; height: 38px; border-radius: 50%; 
+  object-fit: cover; 
+  margin: 0 8px 0 0; /* 위 오른쪽 아래 왼쪽 -> 오른쪽에만 8px 여백 */
+  flex-shrink: 0; /* 창이 좁아져도 이미지가 찌그러지지 않게 방지 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
+}
+
+/* 2. 이름과 말풍선을 담는 투명한 상자 */
+.msg-content-wrapper { 
+  display: flex; flex-direction: column; 
+  max-width: 75%; 
+  min-width: 0; /* 🌟 추가: Flexbox 안에서 텍스트가 레이아웃을 망가뜨리는 것을 방지합니다 */
+}
+.msg-row.me .msg-content-wrapper { align-items: flex-end; }
+.msg-row.other .msg-content-wrapper { align-items: flex-start; }
+
+/* 3. 이름 */
+.msg-name { 
+  font-size: 11px; color: #555; 
+  margin-bottom: 4px; font-weight: bold; 
+}
+
+/* 4. 말풍선 공통 디자인 */
+.chat-msg { 
+  padding: 8px 12px; border-radius: 12px; font-size: 14px; 
+  line-height: 1.4; 
+  
+  /* 🔥 범인 색출 및 교체! */
+  word-break: break-word; /* anywhere 대신 break-word를 써서 단어가 유지되게 합니다 */
+  width: fit-content; /* 텍스트 길이에 맞춰 상자가 가로로 자연스럽게 늘어나게 합니다 */
+  max-width: 100%; /* 상자가 75% 영역을 뚫고 나가지 못하게 안전장치를 겁니다 */
+  
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+  margin-left: 0 !important; 
+}
+
+/* 말풍선 색상 및 형태 (둥근 모서리) */
+.msg-row.me .chat-msg { 
+  background: #ffeb33; /* 내 말풍선: 노란색 */
+  border-top-right-radius: 2px; /* 카카오톡 스타일 뾰족이 */
+}
+.msg-row.other .chat-msg { 
+  background: #ffffff; /* 상대 말풍선: 흰색 */
+  border-top-left-radius: 2px; /* 카카오톡 스타일 뾰족이 */
+}
+
+/* --- 🌟 1. 연속된 메시지 처리 --- */
+/* 일반 메시지는 아래 여백이 15px이지만, 연속된 메시지는 4px로 확 줄입니다 */
+.msg-row.consecutive { 
+  margin-top: -11px; /* 간격을 좁게 위로 당깁니다 */
+}
+/* 연속된 상대방 메시지일 경우 프로필 이미지는 공간만 차지하게 숨기고, 이름은 아예 삭제합니다 */
+.msg-row.consecutive .msg-profile-pic { visibility: hidden; }
+.msg-row.consecutive .msg-name { display: none; }
+
+/* --- 🌟 2. 텍스트 에어리어(입력창) 디자인 --- */
+#chat-input { 
+  flex-grow: 1; padding: 10px 12px; 
+  border-radius: 20px; border: 1px solid #ccc; outline: none; 
+  resize: none; /* 유저가 임의로 크기 조절하는 것 방지 */
+  line-height: 1.4; font-family: inherit; font-size: 14px;
+  
+  /* 1줄일 때의 기본 높이와 3줄일 때의 최대 높이를 지정합니다 */
+  min-height: 40px; 
+  max-height: 80px; /* 약 3줄 분량 (이보다 길어지면 안에서 스크롤됨) */
+  overflow-y: auto; 
+}
+/* 스크롤바 예쁘게 다듬기 (선택 사항) */
+#chat-input::-webkit-scrollbar { width: 6px; }
+#chat-input::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 10px; }
+
+/* --- 은행 송금 버튼 애니메이션 --- */
+#btn-open-transfer:hover { background: #2980b9; }
+#btn-open-transfer:active { transform: scale(0.98); box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3); }

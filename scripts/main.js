@@ -745,6 +745,30 @@ class SmartphoneApp extends Application {
         html.find('#sns-dmchat-input').on('keydown', (ev) => {
             if (ev.key === 'Enter') html.find('#btn-sns-dmchat-send').click();
         });
+
+        // 🌟 [알람] 5초마다 메신저와 SNS의 신규 알람을 체크합니다.
+        const checkAlarms = () => {
+            // 1. 메신저 알람 체크
+            fetch(`${this.apiUrl}/api_get_chatlist.php?my_id=${this.myUserId}`)
+            .then(res => res.json())
+            .then(data => {
+                let hasUnread = false;
+                if(data.data) { data.data.forEach(chat => { if(chat.unread_count > 0) hasUnread = true; }); }
+                if(hasUnread) html.find('#badge-messenger').show();
+                else html.find('#badge-messenger').hide();
+            });
+
+            // 2. SNS DM 알람 체크
+            fetch(`${this.apiUrl}/api_check_alarms.php?action=check&my_id=${this.myActor.id}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success" && data.sns_alarm) html.find('#badge-sns').show();
+                else html.find('#badge-sns').hide();
+            });
+        };
+        
+        checkAlarms(); // 창 열릴 때 즉시 1회 실행
+        setInterval(checkAlarms, 5000); // 이후 5초마다 무한 반복
     }
 
     // 🌟 [SNS] 타인(또는 내) 프로필 열기
@@ -839,6 +863,10 @@ class SmartphoneApp extends Application {
     }
 
     loadSNSDMMessages(html, roomId) {
+        // 🔥 방에 들어왔으므로 내게 온 메시지를 모두 읽음 처리합니다.
+        fetch(`${this.apiUrl}/api_check_alarms.php?action=read_sns&my_id=${this.myActor.id}&room_id=${roomId}`);
+
+        // (기존 코드 유지)
         fetch(`${this.apiUrl}/api_sns_dm.php?action=get_msgs&room_id=${roomId}`)
         .then(res => res.json())
         .then(data => {
@@ -957,6 +985,7 @@ class SmartphoneApp extends Application {
             const container = html.find('#sns-feed-container');
             container.empty();
             if(data.status === "success" && data.data && data.data.length > 0) {
+                // ⏬ 여기서부터 반복문 시작 ⏬
                 data.data.forEach(post => {
                     const profImg = post.author_img || 'https://via.placeholder.com/32';
                     const postImgHtml = post.image_url ? `<img src="${post.image_url}" class="sns-post-img">` : '';
@@ -986,14 +1015,16 @@ class SmartphoneApp extends Application {
                         </div>
                     `;
                     container.append(itemHtml);
-                });
 
-                // 🔥 [이벤트] 프로필 사진이나 닉네임을 클릭하면 '유저 프로필' 화면 열기
-                html.find(`.sns-post[data-id="${post.post_id}"] .sns-header`).css('cursor', 'pointer').click(() => {
-                    this.openSNSUserProfile(html, post.actor_id);
-                });
+                    // 🔥 [수정됨] 이 클릭 이벤트가 반드시 forEach 반복문 '안쪽'에 있어야 post 변수를 읽을 수 있습니다!
+                    html.find(`.sns-post[data-id="${post.post_id}"] .sns-header`).css('cursor', 'pointer').click(() => {
+                        this.openSNSUserProfile(html, post.actor_id);
+                    });
 
-                // 🔥 [이벤트] 좋아요 버튼 클릭
+                }); 
+                // ⏫ 여기서 반복문이 끝납니다 ⏫
+
+                // 🔥 [이벤트] 좋아요 버튼 클릭 (버튼 연결은 반복문 밖에서 한 번에 묶어서 처리)
                 html.find('.btn-sns-like').click(ev => {
                     const btn = $(ev.currentTarget);
                     const postId = btn.data('id');
@@ -1013,7 +1044,7 @@ class SmartphoneApp extends Application {
                     });
                 });
 
-                // 🔥 [이벤트] 댓글 버튼 클릭
+                // 🔥 [이벤트] 댓글 버튼 클릭 (반복문 밖)
                 html.find('.btn-sns-comment').click(ev => {
                     const postId = $(ev.currentTarget).data('id');
                     this.openSNSComments(html, postId);

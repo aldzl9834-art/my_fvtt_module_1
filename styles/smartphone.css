@@ -175,3 +175,100 @@
 /* --- 은행 송금 버튼 애니메이션 --- */
 #btn-open-transfer:hover { background: #2980b9; }
 #btn-open-transfer:active { transform: scale(0.98); box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3); }
+
+/* --- 🌟 신규 소프트키 네비게이션 바 --- */
+.softkeys-bar {
+    background-color: rgba(255, 255, 255, 0.95); /* 배경 투명하게 */
+    backdrop-filter: blur(5px); /* 뒤 배경 흐리게 */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    height: 50px; /* 살짝 낮춤 */
+    padding: 0;
+    justify-content: space-around; /* 아이콘 간격 동일하게 */
+}
+
+.softkeys-bar .nav-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    opacity: 0.7; /* 기본 투명도 */
+    transition: all 0.2s;
+}
+
+/* ◯ 홈버튼은 조금 더 진하게 표시 */
+.softkeys-bar .nav-item.btn-home-key {
+    opacity: 0.9;
+}
+
+/* 아이콘 폰트 크기 및 디자인 */
+.softkeys-bar .nav-icon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 클릭 효과 */
+.softkeys-bar .nav-item:active {
+    background-color: rgba(0, 0, 0, 0.1); /* 눌렀을 때 배경색 */
+    transform: scale(0.95); /* 살짝 줄어듦 */
+}
+
+/* --- 🌟 하단으로 이동한 메신저 탭 디자인 --- */
+.messenger-tabs {
+  position: absolute;
+  bottom: 50px; /* 하단 소프트키 높이(50px)만큼 위로 띄움 */
+  left: 0;
+  width: 100%;
+  display: flex; 
+  background: #2c3e50;
+  z-index: 10;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* 탭 위쪽에 살짝 그림자 추가 */
+}
+
+.msg-tab {
+  flex: 1; text-align: center; padding: 12px 0;
+  color: #95a5a6; cursor: pointer; font-size: 14px; font-weight: bold;
+  border-top: 3px solid transparent; /* 밑줄 대신 윗줄로 변경 */
+  transition: 0.2s;
+}
+
+.msg-tab.active {
+  color: white; border-top: 3px solid #f1c40f; /* 선택된 탭은 위쪽에 노란색 포인트 */
+}
+
+/* --- 🌟 하단 소프트키 가림 방지 (최상단 고정) --- */
+.bottom-nav.softkeys-bar {
+  z-index: 999 !important; /* 프로필이나 채팅방이 열려도 무조건 맨 위에 보이게 강제합니다 */
+}
+#screen-profile, #screen-chat {
+  padding-bottom: 50px; /* 소프트키에 내용이 가려지지 않도록 여백 확보 */
+}
+
+/* --- 🌟 다크웹 게시판 스타일 --- */
+/* 목록 아이템 */
+.board-item { 
+  padding: 12px 15px; border-bottom: 1px solid #ecf0f1; cursor: pointer; 
+}
+.board-item:hover { background-color: #f9f9f9; }
+.board-title { 
+  font-size: 14px; font-weight: bold; margin-bottom: 6px; 
+  display: flex; align-items: center; color: #2c3e50;
+}
+.board-comments { 
+  color: #e74c3c; font-size: 12px; margin-left: 6px; font-weight: bold; 
+}
+.board-info { 
+  font-size: 11px; color: #95a5a6; display: flex; justify-content: space-between; 
+}
+.board-author { color: #3498db; font-weight: bold; }
+
+/* 댓글 목록 아이템 */
+.comment-item { 
+  border-bottom: 1px dotted #ccc; padding: 10px 0; 
+}
+.comment-header { 
+  display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; 
+}
+.comment-author { font-weight: bold; color: #3498db; }
+.comment-date { color: #95a5a6; }
+.comment-content { font-size: 13px; color: #333; word-break: break-all; line-height: 1.4; }

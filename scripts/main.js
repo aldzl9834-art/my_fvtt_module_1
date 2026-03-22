@@ -24,8 +24,8 @@ class SmartphoneApp extends Application {
         super.activateListeners(html);
 
         // 🌟 마스터(최고 권한 4)일 경우에만 관리자 앱 아이콘을 띄웁니다.
-        if (game.user.role === 4) {
-            html.find('#icon-admin').show();
+        if (game.user.role === 3) {
+            html.find('#btn-board-admin').show();
         }
         // --- 🌟 우체통 확인 함수 (나에게 온 돈이 있으면 내 시트에 더합니다) ---
         const checkPendingTransfers = () => {
@@ -123,7 +123,8 @@ class SmartphoneApp extends Application {
                 break;
             case 'screen-board-read':
             case 'screen-board-write':
-                MapsTo('screen-browser');
+            case 'screen-admin': // 🔥 관리자 페이지에서도 ◀ 버튼을 누르면 갤러리로 돌아가게 추가!
+                navigateTo('screen-browser');
                 this.loadBoardList(html);
                 break;
             default:
@@ -133,36 +134,114 @@ class SmartphoneApp extends Application {
         }
     });
 
+    // 🌟 [게시판] 상단 뒤로가기/취소 버튼 (목록으로 돌아가기)
+        html.find('.btn-back-board').click(() => {
+            navigateTo('screen-browser'); // 화면 전환 및 하단 네비게이션 불빛 조절
+            this.loadBoardList(html);     // 게시판 목록 새로고침
+        });
+
+
     // 🌟 // 🌟 [게시판] 전체글 버튼 클릭 (모아보기 해제)
         html.find('#btn-board-all').click(() => {
             this.loadBoardList(html); 
         });
 
-        // 🌟 [게시판] 고정닉 로그인/설정 버튼
-        html.find('#btn-board-login').click(() => {
+        // 🌟 [게시판] 현재 로그인 상태를 파악해 버튼들을 끄고 켜는 함수
+        const updateBoardLoginUI = () => {
+            const currentNick = this.myActor.getFlag('marpisa-gundog-smartphone', 'boardNickname');
+            if (currentNick) {
+                // 로그인 상태
+                html.find('#btn-board-login').hide();
+                html.find('#btn-board-edit-nick').show();
+                html.find('#btn-board-logout').show();
+            } else {
+                // 로그아웃 (익명) 상태
+                html.find('#btn-board-login').show();
+                html.find('#btn-board-edit-nick').hide();
+                html.find('#btn-board-logout').hide();
+            }
+        };
+        updateBoardLoginUI(); // 창 열릴 때 최초 1회 실행
+
+        // 🌟 닉네임 설정 다이얼로그 띄우기 및 중복 체크 로직
+        const showNickDialog = (isEdit = false) => {
             const currentNick = this.myActor.getFlag('marpisa-gundog-smartphone', 'boardNickname') || '';
+            const titleMsg = isEdit ? "닉네임 변경" : "새 닉네임 설정";
+            
             new Dialog({
-                title: "다크웹 고정 닉네임 설정",
+                title: titleMsg,
                 content: `
-                    <p style="font-size:13px; color:#555;">다크웹에서 사용할 고정 닉네임을 설정합니다.<br>이름을 비우고 저장하면 <b>유동닉(ㅇㅇ)</b> 모드로 돌아갑니다.</p>
+                    <p style="font-size:13px; color:#555;">갤러리에서 사용할 고정 닉네임을 입력하세요.</p>
                     <input type="text" id="fixed-nick-input" value="${currentNick}" placeholder="원하는 닉네임 입력" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; margin-bottom:10px; font-weight:bold;">
                 `,
                 buttons: {
                     save: {
-                        label: "저장하기",
+                        label: "저장/중복확인",
                         callback: async (dHtml) => {
                             const newNick = dHtml.find('#fixed-nick-input').val().trim();
-                            if (newNick) {
-                                await this.myActor.setFlag('marpisa-gundog-smartphone', 'boardNickname', newNick);
-                                ui.notifications.info(`✅ 갤러리 고정닉 [★${newNick}] 설정 완료!`);
-                            } else {
-                                await this.myActor.unsetFlag('marpisa-gundog-smartphone', 'boardNickname');
-                                ui.notifications.info(`✅ 익명(유동닉) 모드로 전환되었습니다.`);
-                            }
+                            if (!newNick) return ui.notifications.warn("닉네임을 입력해야 합니다.");
+                            
+                            // PHP에 중복 검사 및 등록 요청
+                            const fd = new FormData();
+                            fd.append('action', 'set');
+                            fd.append('actor_id', this.myActor.id);
+                            fd.append('nickname', newNick);
+
+                            fetch(`${this.apiUrl}/api_board_nickname.php`, { method: "POST", body: fd })
+                            .then(res => res.json())
+                            .then(async data => {
+                                if (data.status === "duplicate") {
+                                    ui.notifications.error(`❌ [${newNick}]은(는) 이미 누군가 사용 중인 닉네임입니다!`);
+                                    showNickDialog(isEdit); // 다이얼로그 다시 열어주기
+                                } else if (data.status === "success") {
+                                    await this.myActor.setFlag('marpisa-gundog-smartphone', 'boardNickname', newNick);
+                                    ui.notifications.info(`✅ 갤러리 고정닉 [★${newNick}] 설정 완료!`);
+                                    updateBoardLoginUI(); // UI 갱신
+                                } else {
+                                    ui.notifications.error("오류가 발생했습니다.");
+                                }
+                            });
                         }
                     }
                 }
             }).render(true);
+        };
+
+        // 🌟 [게시판] 로그인 버튼 (자동 로그인 기능 포함)
+        html.find('#btn-board-login').click(() => {
+            // DB에 저장된 내 닉네임이 있는지 확인
+            const fd = new FormData();
+            fd.append('action', 'get');
+            fd.append('actor_id', this.myActor.id);
+
+            fetch(`${this.apiUrl}/api_board_nickname.php`, { method: "POST", body: fd })
+            .then(res => res.json())
+            .then(async data => {
+                if (data.status === "success" && data.nickname) {
+                    // 예전에 설정한 닉네임이 있으면 자동 로그인!
+                    await this.myActor.setFlag('marpisa-gundog-smartphone', 'boardNickname', data.nickname);
+                    ui.notifications.info(`🔓 자동 로그인 완료: [★${data.nickname}] 님 환영합니다!`);
+                    updateBoardLoginUI();
+                } else {
+                    // 없으면 새 닉네임 설정 창 띄우기
+                    showNickDialog(false);
+                }
+            });
+        });
+
+        // 🌟 [게시판] 닉변 버튼
+        html.find('#btn-board-edit-nick').click(() => showNickDialog(true));
+
+        // 🌟 [게시판] 로그아웃 기능
+        html.find('#btn-board-logout').click(async () => {
+            await this.myActor.unsetFlag('marpisa-gundog-smartphone', 'boardNickname');
+            ui.notifications.info(`✅ 로그아웃 되었습니다. (익명 모드)`);
+            updateBoardLoginUI(); 
+        });
+
+        // 🌟 [게시판] 상단 관리자 버튼 (관리자 화면으로 이동)
+        html.find('#btn-board-admin').click(() => {
+            navigateTo('screen-admin');
         });
 
         // 🌟 [게시판] 글쓰기 화면 열기 (고정닉 적용)
@@ -192,7 +271,94 @@ class SmartphoneApp extends Application {
             }
         });
 
-        // (중간의 상단 뒤로가기 버튼, 첨부파일 이벤트 등은 그대로 유지) ...
+        // 🌟 [SNS] 사진 첨부 시 미리보기
+        html.find('#sns-setup-upload').change(ev => {
+            const file = ev.target.files[0];
+            if(file) html.find('#sns-setup-img').attr('src', URL.createObjectURL(file));
+        });
+        html.find('#sns-write-img-box').click(() => html.find('#sns-write-upload').click());
+        html.find('#sns-write-upload').change(ev => {
+            const file = ev.target.files[0];
+            if(file) {
+                html.find('#sns-write-preview').attr('src', URL.createObjectURL(file)).show();
+                html.find('#sns-write-img-box span').hide();
+            }
+        });
+
+        // 🌟 [SNS] 취소 버튼들
+        html.find('.btn-sns-cancel').click(() => {
+            html.find('.phone-screen').hide();
+            html.find('#screen-sns-feed').show();
+        });
+
+        // 🌟 [SNS] 글쓰기 화면 열기
+        html.find('#btn-sns-write').click(() => {
+            html.find('.phone-screen').hide();
+            html.find('#screen-sns-write').show();
+            html.find('#sns-write-preview').hide().attr('src', '');
+            html.find('#sns-write-img-box span').show();
+            html.find('#sns-write-upload').val('');
+            html.find('#sns-write-content').val('');
+        });
+
+        // 🌟 [SNS] 프로필 저장 및 생성
+        html.find('#btn-sns-profile-save').click(() => {
+            const snsId = html.find('#sns-setup-id').val().trim();
+            const nick = html.find('#sns-setup-nick').val().trim();
+            const bio = html.find('#sns-setup-bio').val().trim();
+            const file = html.find('#sns-setup-upload')[0].files[0];
+
+            if(!snsId || !nick) return ui.notifications.warn("사용자 이름과 표시될 이름을 입력해주세요.");
+
+            const fd = new FormData();
+            fd.append('action', 'update');
+            fd.append('actor_id', this.myActor.id);
+            fd.append('sns_id', snsId);
+            fd.append('nickname', nick);
+            fd.append('bio', bio);
+            if (file) fd.append('file', file);
+            
+            // 기존 프로필 이미지가 있다면 그것도 보냄 (여기선 생략/보완 가능)
+
+            fetch(`${this.apiUrl}/api_sns_profile.php`, { method: "POST", body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    ui.notifications.info("프로필 설정 완료!");
+                    this.checkAndLoadSNS(html); // 피드로 이동
+                } else if (data.status === "duplicate") {
+                    ui.notifications.error(data.message);
+                } else {
+                    ui.notifications.error("프로필 저장 실패");
+                }
+            });
+        });
+
+        // 🌟 [SNS] 새 게시물 등록
+        html.find('#btn-sns-submit').click(() => {
+            const content = html.find('#sns-write-content').val().trim();
+            const file = html.find('#sns-write-upload')[0].files[0];
+
+            if(!file && !content) return ui.notifications.warn("사진이나 내용을 입력해주세요.");
+
+            const fd = new FormData();
+            fd.append('actor_id', this.myActor.id);
+            fd.append('content', content);
+            if(file) fd.append('file', file);
+
+            ui.notifications.info("업로드 중...");
+            fetch(`${this.apiUrl}/api_sns_write_post.php`, { method: "POST", body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    html.find('.phone-screen').hide();
+                    html.find('#screen-sns-feed').show();
+                    this.loadSNSFeed(html);
+                } else {
+                    ui.notifications.error("업로드 실패");
+                }
+            });
+        });
 
         // 🌟 [게시판] 글 등록(전송) 로직 (고정닉 연동)
         html.find('#btn-board-submit').click(() => {
@@ -262,20 +428,26 @@ class SmartphoneApp extends Application {
         });
 
     // 🌟 바탕화면 앱 아이콘 클릭 이벤트 (여기서 navigateTo 함수를 사용하도록 수정)
-    html.find('.app-icon').click(ev => {
-        const targetScreen = $(ev.currentTarget).data('target');
-        
-        navigateTo(targetScreen); // 화면 이동
+        html.find('.app-icon').click(ev => {
+            const targetScreen = $(ev.currentTarget).data('target');
+            
+            if(targetScreen === 'screen-sns-feed') {
+                // SNS는 바로 열지 않고, 계정 유무부터 확인합니다.
+                this.checkAndLoadSNS(html);
+                return;
+            }
+            
+            navigateTo(targetScreen); // 화면 이동
 
-        // 기능 로드 연결
-        if(targetScreen === 'screen-list') this.loadContactList(html);
-        if(targetScreen === 'screen-bank') {
-            if (typeof checkPendingTransfers === 'function') checkPendingTransfers(); // 은행이면 입금 확인
-            this.updateBankScreen(html); 
-        }
-        if(targetScreen === 'screen-chatlist') this.loadChatList(html);
-        if(targetScreen === 'screen-browser') this.loadBoardList(html);
-    });
+            // 기능 로드 연결
+            if(targetScreen === 'screen-list') this.loadContactList(html);
+            if(targetScreen === 'screen-bank') {
+                if (typeof checkPendingTransfers === 'function') checkPendingTransfers();
+                this.updateBankScreen(html); 
+            }
+            if(targetScreen === 'screen-chatlist') this.loadChatList(html);
+            if(targetScreen === 'screen-browser') this.loadBoardList(html);
+        });
 
         html.find('#btn-open-transfer').click(() => {
             fetch(`${this.apiUrl}/api_get_contacts.php?my_id=${this.myUserId}`)
@@ -458,7 +630,7 @@ class SmartphoneApp extends Application {
         
         // 🌟 [관리자] 다크웹 강제 진입 버튼
         html.find('#btn-admin-bypass').click(() => {
-            ui.notifications.info("🕵️ 관리자 권한으로 다크웹 시스템에 강제 접속합니다.");
+            ui.notifications.info("🕵️ 관리자 권한으로 PMC 시스템에 강제 접속합니다.");
             navigateTo('screen-browser');
             this.loadBoardList(html);
         });
@@ -471,6 +643,224 @@ class SmartphoneApp extends Application {
         html.find('#comment-list').on('click', '.btn-delete-comment', (ev) => {
             const cid = $(ev.currentTarget).data('id');
             this.promptBoardAction(html, 'delete_comment', cid);
+        });
+        
+        // 🌟 [SNS] 댓글 뒤로가기
+        html.find('#btn-sns-comments-back').click(() => {
+            html.find('.phone-screen').hide();
+            html.find('#screen-sns-feed').show();
+            this.loadSNSFeed(html); // 댓글 수 갱신을 위해 피드 새로고침
+        });
+
+        // 🌟 [SNS] 댓글 게시(전송) 버튼
+        html.find('#btn-sns-send-comment').click(() => {
+            const content = html.find('#sns-comment-input').val().trim();
+            if (!content) return;
+
+            const fd = new FormData();
+            fd.append('action', 'add');
+            fd.append('post_id', this.currentSnsPostId);
+            fd.append('actor_id', this.myActor.id);
+            fd.append('content', content);
+
+            fetch(`${this.apiUrl}/api_sns_comment.php`, { method: "POST", body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    html.find('#sns-comment-input').val('');
+                    this.loadSNSComments(html, this.currentSnsPostId); // 렌더링 갱신
+                } else {
+                    ui.notifications.error("댓글 작성 실패");
+                }
+            });
+        });
+
+        // 댓글창에서 엔터 쳐도 전송되게
+        html.find('#sns-comment-input').on('keydown', (ev) => {
+            if (ev.key === 'Enter') html.find('#btn-sns-send-comment').click();
+        });
+        
+        // 🌟 [SNS] 뒤로가기 버튼들 (피드로 돌아가기)
+        html.find('.btn-sns-back-to-feed').click(() => {
+            html.find('.phone-screen').hide();
+            html.find('#screen-sns-feed').show();
+        });
+        
+        // 🌟 [SNS] DM 목록 열기 버튼 (메인 피드 우측 상단 ✉️ 버튼)
+        html.find('#btn-sns-dm').click(() => {
+            html.find('.phone-screen').hide();
+            html.find('#screen-sns-dmlist').show();
+            this.loadSNSDMList(html);
+        });
+
+        // 🌟 [SNS] 유저 프로필에서 '팔로우' 버튼 클릭
+        html.find('#btn-sns-follow').click(() => {
+            if (!this.currentSnsTargetId) return;
+            const fd = new FormData();
+            fd.append('follower_id', this.myActor.id);
+            fd.append('following_id', this.currentSnsTargetId);
+            
+            fetch(`${this.apiUrl}/api_sns_follow.php`, { method: "POST", body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    this.openSNSUserProfile(html, this.currentSnsTargetId); // UI 갱신 (버튼 색상 등)
+                }
+            });
+        });
+
+        // 🌟 [SNS] 유저 프로필에서 '메시지' 버튼 클릭 -> DM 방 열기
+        html.find('#btn-sns-message').click(() => {
+            if (!this.currentSnsTargetId) return;
+            // SNS용 고유 방 번호 생성
+            const roomId = [this.myActor.id, this.currentSnsTargetId].sort().join("_");
+            this.openSNSDMChat(html, roomId, this.currentSnsTargetId, html.find('#sns-user-title').text(), html.find('#sns-user-img').attr('src'));
+        });
+
+        // 🌟 [SNS] DM 채팅방 뒤로가기 (목록으로)
+        html.find('#btn-sns-dmchat-back').click(() => {
+            html.find('.phone-screen').hide();
+            html.find('#screen-sns-dmlist').show();
+            this.loadSNSDMList(html);
+        });
+
+        // 🌟 [SNS] DM 보내기 버튼 & 엔터키
+        html.find('#btn-sns-dmchat-send').click(() => {
+            const content = html.find('#sns-dmchat-input').val().trim();
+            if (!content || !this.currentSnsDmRoomId) return;
+
+            const fd = new FormData();
+            fd.append('action', 'send');
+            fd.append('my_id', this.myActor.id);
+            fd.append('target_id', this.currentSnsTargetId);
+            fd.append('room_id', this.currentSnsDmRoomId);
+            fd.append('content', content);
+
+            fetch(`${this.apiUrl}/api_sns_dm.php`, { method: "POST", body: fd })
+            .then(() => {
+                html.find('#sns-dmchat-input').val('');
+                this.loadSNSDMMessages(html, this.currentSnsDmRoomId);
+            });
+        });
+        html.find('#sns-dmchat-input').on('keydown', (ev) => {
+            if (ev.key === 'Enter') html.find('#btn-sns-dmchat-send').click();
+        });
+    }
+
+    // 🌟 [SNS] 타인(또는 내) 프로필 열기
+    openSNSUserProfile(html, targetActorId) {
+        this.currentSnsTargetId = targetActorId;
+        
+        fetch(`${this.apiUrl}/api_sns_user_profile.php?target_id=${targetActorId}&my_id=${this.myActor.id}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success" && data.profile) {
+                const p = data.profile;
+                html.find('#sns-user-title').text(p.sns_id);
+                html.find('#sns-user-nick').text(p.nickname);
+                html.find('#sns-user-bio').text(p.bio || '');
+                html.find('#sns-user-img').attr('src', p.profile_image_url || 'https://via.placeholder.com/80');
+                
+                html.find('#sns-user-posts').text(p.post_count);
+                html.find('#sns-user-followers').text(p.follower_count);
+                html.find('#sns-user-following').text(p.following_count);
+
+                // 팔로우 버튼 상태 변경
+                const btnFollow = html.find('#btn-sns-follow');
+                if (targetActorId === this.myActor.id) {
+                    btnFollow.hide(); html.find('#btn-sns-message').hide(); // 내 프로필이면 숨김
+                } else {
+                    btnFollow.show(); html.find('#btn-sns-message').show();
+                    if (p.is_following > 0) {
+                        btnFollow.text("팔로잉").css({background: '#efefef', color: '#262626'}); // 이미 팔로우 중
+                    } else {
+                        btnFollow.text("팔로우").css({background: '#3897f0', color: 'white'}); // 팔로우 안함
+                    }
+                }
+
+                // 사진 그리드 채우기
+                const grid = html.find('#sns-user-grid');
+                grid.empty();
+                data.posts.forEach(post => {
+                    grid.append(`<img src="${post.image_url}" class="sns-grid-img">`);
+                });
+
+                html.find('.phone-screen').hide();
+                html.find('#screen-sns-user-profile').show();
+            }
+        });
+    }
+
+    // 🌟 [SNS] DM 목록 불러오기
+    loadSNSDMList(html) {
+        fetch(`${this.apiUrl}/api_sns_dm.php?action=list&my_id=${this.myActor.id}`)
+        .then(res => res.json())
+        .then(data => {
+            const container = html.find('#sns-dmlist-container');
+            container.empty();
+            if (data.status === "success" && data.data && data.data.length > 0) {
+                data.data.forEach(dm => {
+                    const profImg = dm.profile_image_url || 'https://via.placeholder.com/50';
+                    container.append(`
+                        <div class="sns-dm-item" data-room="${dm.room_id}" data-target="${dm.other_id}" data-name="${dm.sns_id}" data-img="${profImg}">
+                            <img src="${profImg}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px;">
+                            <div style="flex-grow: 1; overflow: hidden;">
+                                <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${dm.sns_id}</div>
+                                <div style="font-size: 13px; color: #8e8e8e; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${dm.content}</div>
+                            </div>
+                            <div style="font-size: 11px; color: #dbdbdb; min-width: 40px; text-align: right;">${dm.created_at}</div>
+                        </div>
+                    `);
+                });
+                
+                // DM 방 클릭
+                html.find('.sns-dm-item').click(ev => {
+                    const t = $(ev.currentTarget);
+                    this.openSNSDMChat(html, t.data('room'), t.data('target'), t.data('name'), t.data('img'));
+                });
+            } else {
+                container.append('<div style="padding: 40px; text-align: center; color: #999;">진행 중인 대화가 없습니다.</div>');
+            }
+        });
+    }
+
+    // 🌟 [SNS] DM 방 열고 대화 불러오기
+    openSNSDMChat(html, roomId, targetId, targetName, targetImg) {
+        this.currentSnsDmRoomId = roomId;
+        this.currentSnsTargetId = targetId;
+
+        html.find('#sns-dmchat-name').text(targetName);
+        html.find('#sns-dmchat-img').attr('src', targetImg || 'https://via.placeholder.com/28');
+        
+        html.find('.phone-screen').hide();
+        html.find('#screen-sns-dmchat').show();
+        
+        this.loadSNSDMMessages(html, roomId);
+    }
+
+    loadSNSDMMessages(html, roomId) {
+        fetch(`${this.apiUrl}/api_sns_dm.php?action=get_msgs&room_id=${roomId}`)
+        .then(res => res.json())
+        .then(data => {
+            const chatBox = html.find('#sns-dmchat-messages');
+            chatBox.empty();
+            if (data.status === "success" && data.data) {
+                data.data.forEach(m => {
+                    const isMe = m.sender_id === this.myActor.id;
+                    const rowClass = isMe ? "sns-dm-me" : "sns-dm-other";
+                    
+                    // 상대방일 경우에만 프로필 사진 표시
+                    const profHtml = isMe ? '' : `<img src="${m.profile_image_url || 'https://via.placeholder.com/28'}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; margin-right: 8px;">`;
+                    
+                    chatBox.append(`
+                        <div style="display: flex; width: 100%; flex-direction: ${isMe ? 'row-reverse' : 'row'}; margin-bottom: 5px;" class="${rowClass}">
+                            ${profHtml}
+                            <div class="sns-dm-msg">${m.content}</div>
+                        </div>
+                    `);
+                });
+                chatBox.scrollTop(chatBox[0].scrollHeight); // 가장 아래로 스크롤
+            }
         });
     }
 
@@ -535,6 +925,150 @@ class SmartphoneApp extends Application {
         }).catch(err => ui.notifications.error("내 잔고 업데이트에 실패했습니다."));
     }
 
+    // 🌟 [SNS] 계정 유무 확인 후 피드 또는 가입 창 열기
+    checkAndLoadSNS(html) {
+        const fd = new FormData();
+        fd.append('action', 'get');
+        fd.append('actor_id', this.myActor.id);
+
+        fetch(`${this.apiUrl}/api_sns_profile.php`, { method: "POST", body: fd })
+        .then(res => res.json())
+        .then(data => {
+            html.find('.bottom-nav .nav-item').removeClass('active');
+            html.find('.phone-screen').hide();
+
+            if(data.status === "success") {
+                // 계정이 있으면 피드 보여주기
+                html.find('#screen-sns-feed').show();
+                this.loadSNSFeed(html);
+            } else {
+                // 계정이 없으면 프로필 생성 창 띄우기
+                html.find('#screen-sns-profile').show();
+                html.find('#sns-setup-img').attr('src', 'https://via.placeholder.com/100'); // 기본 이미지
+            }
+        });
+    }
+
+    // 🌟 [SNS] 전체 피드 불러오기
+    loadSNSFeed(html) {
+        fetch(`${this.apiUrl}/api_sns_get_feed.php?my_id=${this.myActor.id}`)
+        .then(res => res.json())
+        .then(data => {
+            const container = html.find('#sns-feed-container');
+            container.empty();
+            if(data.status === "success" && data.data && data.data.length > 0) {
+                data.data.forEach(post => {
+                    const profImg = post.author_img || 'https://via.placeholder.com/32';
+                    const postImgHtml = post.image_url ? `<img src="${post.image_url}" class="sns-post-img">` : '';
+                    
+                    // 내가 좋아요를 눌렀으면 꽉 찬 빨간 하트, 아니면 빈 하트
+                    const heartIcon = post.is_liked_by_me > 0 ? '❤️' : '🤍';
+                    
+                    const itemHtml = `
+                        <div class="sns-post" data-id="${post.post_id}">
+                            <div class="sns-header">
+                                <img src="${profImg}" class="sns-prof-img">
+                                <span class="sns-nickname">${post.sns_id}</span>
+                            </div>
+                            ${postImgHtml}
+                            <div class="sns-actions">
+                                <button class="sns-action-btn btn-sns-like" data-id="${post.post_id}">${heartIcon}</button>
+                                <button class="sns-action-btn btn-sns-comment" data-id="${post.post_id}">💬</button>
+                            </div>
+                            <div class="sns-likes">좋아요 <span class="like-count">${post.like_count}</span>개</div>
+                            <div class="sns-content-box">
+                                <span class="sns-nickname">${post.sns_id}</span> ${post.content.replace(/\n/g, '<br>')}
+                            </div>
+                            <div class="sns-action-btn btn-sns-comment" data-id="${post.post_id}" style="padding: 5px 15px; font-size: 13px; color: #8e8e8e; cursor:pointer; text-align:left;">
+                                댓글 ${post.comment_count}개 모두 보기
+                            </div>
+                            <div class="sns-time">${post.created_at}</div>
+                        </div>
+                    `;
+                    container.append(itemHtml);
+                });
+
+                // 🔥 [이벤트] 프로필 사진이나 닉네임을 클릭하면 '유저 프로필' 화면 열기
+                html.find(`.sns-post[data-id="${post.post_id}"] .sns-header`).css('cursor', 'pointer').click(() => {
+                    this.openSNSUserProfile(html, post.actor_id);
+                });
+
+                // 🔥 [이벤트] 좋아요 버튼 클릭
+                html.find('.btn-sns-like').click(ev => {
+                    const btn = $(ev.currentTarget);
+                    const postId = btn.data('id');
+                    
+                    const fd = new FormData();
+                    fd.append('post_id', postId);
+                    fd.append('actor_id', this.myActor.id);
+                    
+                    fetch(`${this.apiUrl}/api_sns_like.php`, { method: "POST", body: fd })
+                    .then(res => res.json())
+                    .then(resData => {
+                        if (resData.status === "success") {
+                            // 하트 모양 변경 및 숫자 업데이트
+                            btn.text(resData.liked ? '❤️' : '🤍');
+                            btn.closest('.sns-post').find('.like-count').text(resData.count);
+                        }
+                    });
+                });
+
+                // 🔥 [이벤트] 댓글 버튼 클릭
+                html.find('.btn-sns-comment').click(ev => {
+                    const postId = $(ev.currentTarget).data('id');
+                    this.openSNSComments(html, postId);
+                });
+
+            } else {
+                container.append('<div style="padding: 40px; text-align: center; color: #999;">새로운 게시물이 없습니다.<br>오른쪽 위 ➕ 버튼을 눌러 첫 글을 작성해보세요!</div>');
+            }
+        });
+    }
+
+    // 🌟 [SNS] 댓글 창 열고 불러오기
+    openSNSComments(html, postId) {
+        this.currentSnsPostId = postId;
+        
+        // 내 프로필 사진을 입력창 옆에 띄우기 위해 가져옵니다
+        const fd = new FormData();
+        fd.append('action', 'get');
+        fd.append('actor_id', this.myActor.id);
+        fetch(`${this.apiUrl}/api_sns_profile.php`, { method: "POST", body: fd })
+        .then(res => res.json())
+        .then(pData => {
+            if (pData.status === "success") html.find('#sns-my-comment-prof').attr('src', pData.data.profile_image_url);
+        });
+
+        this.loadSNSComments(html, postId);
+        
+        html.find('.phone-screen').hide();
+        html.find('#screen-sns-comments').show();
+    }
+
+    loadSNSComments(html, postId) {
+        fetch(`${this.apiUrl}/api_sns_comment.php?action=get&post_id=${postId}`)
+        .then(res => res.json())
+        .then(data => {
+            const list = html.find('#sns-comments-list');
+            list.empty();
+            if (data.status === "success" && data.data) {
+                data.data.forEach(c => {
+                    list.append(`
+                        <div style="display: flex; margin-bottom: 10px;">
+                            <img src="${c.profile_image_url}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 10px;">
+                            <div>
+                                <span style="font-weight: bold; font-size: 13px; margin-right: 5px;">${c.sns_id}</span>
+                                <span style="font-size: 13px;">${c.content}</span>
+                                <div style="font-size: 11px; color: #8e8e8e; margin-top: 4px;">${c.created_at}</div>
+                            </div>
+                        </div>
+                    `);
+                });
+                list.scrollTop(list[0].scrollHeight);
+            }
+        });
+    }
+
     addContact(html, targetId) {
         const formData = new FormData(); formData.append("owner_id", this.myUserId); formData.append("contact_id", targetId);
         fetch(`${this.apiUrl}/api_add_addressbook.php`, { method: "POST", body: formData })
@@ -570,7 +1104,7 @@ class SmartphoneApp extends Application {
             html.find('#board-main-title').text('유저 작성글');
         } else {
             html.find('#btn-board-all').hide();
-            html.find('#board-main-title').text('다크웹 익명 갤러리');
+            html.find('#board-main-title').text('PMC갤러리');
         }
 
         fetch(url)

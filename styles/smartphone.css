@@ -340,3 +340,37 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   z-index: 10;
 }
+
+/* --- 🌟 홈 화면 앱 그리드 및 아이콘 --- */
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 한 줄에 4개씩 배치 */
+  gap: 20px 10px; /* 위아래, 좌우 간격 */
+}
+
+.app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.app-icon .icon-img {
+  width: 50px; height: 50px;
+  border-radius: 14px; 
+  display: flex; justify-content: center; align-items: center;
+  font-size: 26px; color: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  margin-bottom: 6px;
+  transition: transform 0.1s;
+}
+
+.app-icon:hover .icon-img { 
+  transform: scale(1.08); 
+}
+
+.app-icon span {
+  font-size: 11px; color: white;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  font-weight: bold;
+}

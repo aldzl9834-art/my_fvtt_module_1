@@ -1,31 +1,36 @@
 <div class="gundog-smartphone">
 
-  <div id="screen-home" class="phone-screen active" style="background: linear-gradient(135deg, #1a2a6c, #11998e, #38ef7d); padding: 30px 20px;">
-    <div style="text-align: center; color: white; font-size: 32px; font-weight: bold; margin-bottom: 40px; text-shadow: 0px 2px 4px rgba(0,0,0,0.5); font-family: monospace;">
-      14:30
+  <div id="screen-home" class="phone-screen active" style="background: linear-gradient(135deg, #1a2a6c, #11998e, #38ef7d); padding: 40px 20px;">
+    <div class="status-bar" style="position: absolute; top: 0; left: 0; right: 0; height: 24px; background: transparent; display: flex; justify-content: flex-end; align-items: center; padding: 0 12px; z-index: 100; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.8); pointer-events: none;">
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+      <i class="fa-solid fa-wifi" style="font-size: 10px;"></i>
+      <span style="font-size: 10px; font-weight: 900; letter-spacing: -0.5px;">LTE</span>
+      <i class="fa-solid fa-battery-three-quarters" style="font-size: 14px;"></i>
     </div>
+  </div>
     
     <div class="app-grid">
       <div class="app-icon" data-target="screen-list" style="position: relative;">
         <div class="icon-badge" id="badge-messenger" style="display: none;"></div>
-        <div class="icon-img" style="background: #2ecc71;">💬</div>
+        <div class="icon-img" style="background: #2ecc71; font-size:30px !important;"><i class="fa-solid fa-comment-dots"></i></div>
         <span>메신저</span>
       </div>
       <div class="app-icon" data-target="screen-bank">
-        <div class="icon-img" style="background: #f1c40f;">🏦</div>
-        <span>마르피사 은행</span>
+        <div class="icon-img" style="background: #f1c40f; font-size:30px !important;"><i class="fa-solid fa-building-columns"></i></div>
+        <span>은행</span>
       </div>
       <div class="app-icon" data-target="screen-browser">
-        <div class="icon-img" style="background: #3498db;">🌐</div>
+        <div class="icon-img" style="background: #3498db; font-size:30px !important;"><i class="fa-brands fa-edge"></i></div>
         <span>PMC갤러리</span>
       </div>
       <div class="app-icon" data-target="screen-sns-feed" style="position: relative;">
         <div class="icon-badge" id="badge-sns" style="display: none;"></div>
-        <div class="icon-img" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">📷</div>
+        <div class="icon-img" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); font-size:32px !important;"><i class="fa-brands fa-instagram"></i></div>
         <span>건독그램</span>
       </div>
     </div>
-
+  </div>
+  
   <div id="screen-list" class="phone-screen" style="display: none; padding-bottom: 95px;">
     <div class="phone-header">마르피사 통신망</div> <div class="my-profile-section">
       <input type="file" id="my-profile-upload" style="display: none;" accept="image/*">
@@ -306,7 +311,7 @@
 
   <div class="bottom-nav softkeys-bar">
     <div class="nav-item btn-recent-apps">
-      <div class="nav-icon">≡</div>
+      <div class="nav-icon"><i class="fa-solid fa-comment-dots"></i></div>
     </div>
     <div class="nav-item btn-home-key active">
       <div class="nav-icon">◯</div>

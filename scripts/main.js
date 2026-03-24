@@ -5,7 +5,7 @@ class SmartphoneApp extends Application {
         this.myUserId = "user_" + actor.id; 
         this.currentRoomId = "";     
         this.currentTargetId = "";   
-        this.apiUrl = `http://${window.location.hostname}:8090/gundog_api`;
+        this.apiUrl = `http://${window.location.hostname}:8080/gundog_api`;
     }
 
     static get defaultOptions() {

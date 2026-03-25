@@ -12,7 +12,7 @@ class SmartphoneApp extends Application {
         // 🔥 FVTT V12 호환성 해결: foundry.utils 를 반드시 붙여야 합니다.
         return foundry.utils.mergeObject(super.defaultOptions, {
             id: "gundog-smartphone-app",
-            title: "📱 마르피사 건독 스마트폰",
+            title: "📱 건독 스마트폰",
             template: "modules/marpisa-gundog-smartphone/templates/app.html",
             width: 400, height: 600, resizable: false
         });
@@ -45,7 +45,7 @@ class SmartphoneApp extends Application {
                                 if (t.document && !t.document.isLinked) t.actor.update({ "system.profile.wealth.bank": newMyBank });
                             });
                         }
-                        ui.notifications.info(`🏦 [마르피사 은행] 입금액 ${receivedAmount.toLocaleString()}원이 통장에 추가되었습니다!`);
+                        ui.notifications.info(`🏦 [글로벌 스탠다드 뱅크] 입금액 $${receivedAmount.toLocaleString()}이 통장에 추가되었습니다!`);
                         this.updateBankScreen(html); // 화면 갱신
                     });
                 }
@@ -484,7 +484,7 @@ class SmartphoneApp extends Application {
                                 
                                 // 🔥 콤마 제거 후 잔고 확인
                                 const myBank = Number(String(this.myActor.system.profile.wealth.bank || "0").replace(/,/g, '')) || 0;
-                                if (amount > myBank) return ui.notifications.error(`잔액이 부족합니다. (현재 잔액: ${myBank.toLocaleString()}원)`);
+                                if (amount > myBank) return ui.notifications.error(`잔액이 부족합니다. (현재 잔액: $${myBank.toLocaleString()})`);
                                 
                                 this.confirmTransfer(html, targetId, amount);
                             }
@@ -806,7 +806,28 @@ class SmartphoneApp extends Application {
                 const grid = html.find('#sns-user-grid');
                 grid.empty();
                 data.posts.forEach(post => {
-                    grid.append(`<img src="${post.image_url}" class="sns-grid-img">`);
+                    grid.append(`<img src="${post.image_url}" class="sns-grid-img" data-id="${post.post_id}">`);
+                });
+
+                // 🌟 [수정할 부분] 클릭하면 피드로 넘어가면서 게시물 번호를 전달합니다.
+                html.find('.sns-grid-img').click(ev => {
+                    const postId = $(ev.currentTarget).data('id');
+                    
+                    html.find('.phone-screen').hide();
+                    html.find('#screen-sns-feed').show();
+                    this.loadSNSFeed(html, postId); 
+                });
+
+                // 🌟 [추가] 썸네일 클릭 시 피드로 이동 & 자동 스크롤
+                html.find('.sns-grid-img').click(ev => {
+                    const postId = $(ev.currentTarget).data('id');
+                    
+                    // 1. 프로필 화면을 끄고 피드 화면을 켭니다
+                    html.find('.phone-screen').hide();
+                    html.find('#screen-sns-feed').show();
+                    
+                    // 2. 피드를 새로고침하면서 '이 게시물 번호로 스크롤 해줘!' 라고 지시를 내립니다
+                    this.loadSNSFeed(html, postId); 
                 });
 
                 html.find('.phone-screen').hide();
@@ -895,7 +916,7 @@ class SmartphoneApp extends Application {
     updateBankScreen(html) {
         // 🔥 화면에 표시할 때도 콤마를 지우고 순수 숫자로 만든 뒤 다시 예쁘게 콤마를 찍어 보여줍니다.
         const currentBank = Number(String(this.myActor.system.profile.wealth.bank || "0").replace(/,/g, '')) || 0;
-        html.find('#my-bank-balance').text(currentBank.toLocaleString() + " 원");
+        html.find('#my-bank-balance').text("$ " + currentBank.toLocaleString());
     }
 
     confirmTransfer(html, targetUserId, amount) {
@@ -908,7 +929,7 @@ class SmartphoneApp extends Application {
 
             new Dialog({
                 title: "송금 최종 확인",
-                content: `<div style="text-align: center; padding: 20px;"><h3 style="color: #e74c3c; margin-top: 0;">⚠️ 이체 확인</h3><p style="font-size: 16px;"><strong>[${targetName}]</strong> 님에게</p><p style="font-size: 28px; font-weight: bold; color: #3498db; margin: 15px 0;">${amount.toLocaleString()} 원</p><p style="font-size: 14px; color: #7f8c8d;">을 정말로 송금하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.</p></div>`,
+                content: `<div style="text-align: center; padding: 20px;"><h3 style="color: #e74c3c; margin-top: 0;">⚠️ 이체 확인</h3><p style="font-size: 16px;"><strong>[${targetName}]</strong> 님에게</p><p style="font-size: 28px; font-weight: bold; color: #3498db; margin: 15px 0;">$ ${amount.toLocaleString()}</p><p style="font-size: 14px; color: #7f8c8d;">을 정말로 송금하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.</p></div>`,
                 buttons: { yes: { icon: '<i class="fas fa-check"></i>', label: "예 (송금 진행)", callback: () => { this.executeTransfer(html, targetActorId, amount, targetName, targetUserId); } }, no: { icon: '<i class="fas fa-times"></i>', label: "아니오" } }, default: "no"
             }).render(true);
         });
@@ -937,12 +958,12 @@ class SmartphoneApp extends Application {
             formData.append("amount", numAmount);
 
             fetch(`${this.apiUrl}/api_send_money.php`, { method: "POST", body: formData }).then(() => {
-                ui.notifications.info(`✅ ${targetName}님에게 ${numAmount.toLocaleString()}원을 송금했습니다.`);
+                ui.notifications.info(`✅ ${targetName}님에게 $ ${numAmount.toLocaleString()}을 송금했습니다.`);
                 this.updateBankScreen(html);
 
                 // 영수증 채팅 발송
                 const roomId = this.getRoomId(this.myUserId, targetUserId);
-                const msg = `💸 [송금 알림]\n${numAmount.toLocaleString()} 원이 안전하게 이체되었습니다.`;
+                const msg = `💸 [송금 알림] \n$ ${numAmount.toLocaleString()} 이 안전하게 이체되었습니다.`;
                 const sendData = new FormData();
                 sendData.append("room_id", roomId);
                 sendData.append("sender_id", this.myUserId);
@@ -1049,6 +1070,20 @@ class SmartphoneApp extends Application {
                     const postId = $(ev.currentTarget).data('id');
                     this.openSNSComments(html, postId);
                 });
+
+                // =========================================================
+                // 🌟 [추가할 부분] 애니메이션 없이 즉시 해당 게시물 위치로 점프!
+                if (scrollToPostId) {
+                    setTimeout(() => {
+                        const targetPost = container.find(`.sns-post[data-id="${scrollToPostId}"]`);
+                        if (targetPost.length) {
+                            const scrollPos = targetPost.offset().top - container.offset().top + container.scrollTop();
+                            // animate(시간) 속성을 빼고 scrollTop으로 즉시 화면을 이동시킵니다.
+                            container.scrollTop(scrollPos); 
+                        }
+                    }, 50); 
+                }
+                // =========================================================
 
             } else {
                 container.append('<div style="padding: 40px; text-align: center; color: #999;">새로운 게시물이 없습니다.<br>오른쪽 위 ➕ 버튼을 눌러 첫 글을 작성해보세요!</div>');

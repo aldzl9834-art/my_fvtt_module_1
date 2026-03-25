@@ -31,8 +31,8 @@
     </div>
   </div>
   
-  <div id="screen-list" class="phone-screen" style="display: none; padding-bottom: 95px;">
-    <div class="phone-header">마르피사 통신망</div> <div class="my-profile-section">
+  <div id="screen-list" class="phone-screen" style="display: none; padding-bottom: 95px; ">
+    <div class="phone-header">MESSENGER</div> <div class="my-profile-section">
       <input type="file" id="my-profile-upload" style="display: none;" accept="image/*">
       <img id="my-profile-img" src="" class="profile-thumb my-profile-pic">
       <div class="my-profile-info">
@@ -40,11 +40,12 @@
         <span style="font-size: 11px; color: #7f8c8d;">프로필 사진을 클릭하여 변경</span>
       </div>
     </div>
-    <div class="contact-divider" style="display: flex; justify-content: space-between; align-items: center;">
-      <span>연락처 목록</span>
-      <div>
-        <button id="btn-my-id" style="background:none; border:none; cursor:pointer; font-size:14px; margin-right:5px;" title="내 연락처 확인">🆔</button>
-        <button id="btn-add-contact" style="background:none; border:none; cursor:pointer; font-size:14px;" title="연락처 추가">➕</button>
+    <div class="contact-divider" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;">
+      <span style="font-weight: bold; color: #7f8c8d; font-size: 12px;">연락처 목록</span>
+      
+      <div style="display: flex; flex-direction: row; align-items: center; gap: 15px;">
+        <button id="btn-my-id" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0; display:flex;" title="내 연락처 확인"><i class="fa-solid fa-image-portrait"></i></button>
+        <button id="btn-add-contact" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0; display:flex;" title="연락처 추가"><i class="fa-solid fa-user-plus"></i></button>
       </div>
     </div>
     <div id="contact-list-container" style="overflow-y: auto; flex-grow: 1;"></div>
@@ -56,9 +57,9 @@
   </div>
 
   <div id="screen-chatlist" class="phone-screen" style="display: none; padding-bottom: 95px;">
-    <div class="phone-header" style="display: flex; justify-content: space-between;">
-      <span>대화창 목록</span>
-      <button id="btn-new-group" style="background:none; border:none; cursor:pointer; font-size:16px;" title="새 그룹 채팅">💬+</button>
+    <div class="phone-header" style="min-width: 300px; text-align: left; padding-right: 10px;">
+      <span style="width: 80%; display: block; font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;">대화창 목록</span>
+      <button id="btn-new-group" style="width: auto ;background:none; border:none; cursor:pointer; font-size:18px; color:white; " title="새 그룹 채팅">💬+</button>
     </div>
     <div id="chatlist-container" style="overflow-y: auto; flex-grow: 1;"></div>
     
@@ -78,33 +79,39 @@
   </div>
 
   <div id="screen-chat" class="phone-screen" style="display: none;">
-    <div class="phone-header" style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <span id="chat-room-name" style="margin-left: 5px; font-weight: bold;">이름</span>
+    
+    <div class="phone-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 3px 15px;">
+      
+      <div style="flex-grow: 1; min-width: 300px; text-align: left; padding-right: 10px;">
+        <span id="chat-room-name" style="display: block; font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;">이름</span>
       </div>
-      <button id="btn-invite-group" style="background:none; border:none; cursor:pointer; font-size:14px;" title="인원 초대">👥+</button>
+      
+      <button id="btn-invite-group" style="background:none; border:none; cursor:pointer; font-size:18px; color:white; padding: 5px;" title="인원 초대">
+        <i class="fa-solid fa-user-plus"></i>
+      </button>
+      
     </div>
     
     <div id="chat-messages" class="chat-display"></div>
     
     <div class="chat-input-area">
       <input type="file" id="file-input" style="display: none;" accept="image/*">
-      <button id="btn-image" class="icon-btn">📎</button>
+      <button id="btn-image" class="chat-icon-btn"><i class="fa-solid fa-image"></i></button>
       <textarea id="chat-input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-      <button id="btn-send">전송</button>
+      <button id="btn-send" class="chat-icon-btn send-btn"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
 
   <div id="screen-bank" class="phone-screen" style="display: none;">
-    <div class="phone-header" style="background: #2980b9;">마르피사 은행</div>
+    <div class="phone-header" style="background: #2980b9;">글로벌 스탠다드 뱅크</div>
     <div class="bank-container" style="padding: 30px 20px; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; height: 100%;">
-      <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">나의 예금 잔액</div>
-      <div id="my-bank-balance" style="font-size: 32px; font-weight: bold; color: #2c3e50; margin-bottom: 40px; letter-spacing: -1px;">0 원</div>
+      <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">예금 잔액</div>
+      <div id="my-bank-balance" style="font-size: 32px; font-weight: bold; color: #2c3e50; margin-bottom: 40px; letter-spacing: -1px;">$ 0</div>
       
       <button id="btn-open-transfer" style="width: 100%; padding: 16px; background: #3498db; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3); transition: 0.2s;">💸 송금하기</button>
       
       <div style="margin-top: 30px; font-size: 12px; color: #bdc3c7; text-align: center;">
-        안전한 거래를 위해 마르피사 통신망이<br>송금 내역을 암호화하여 보호합니다.
+        안전한 거래를 위해 통신망이<br>송금 내역을 암호화하여 보호합니다.
       </div>
     </div>
   </div>
@@ -115,12 +122,12 @@
         <span id="board-main-title">PMC갤러리</span>
         <button id="btn-board-all" style="display:none; background:#e74c3c; border:none; color:white; font-size:10px; border-radius:3px; padding:2px 4px; margin-left:5px; cursor:pointer;">전체글</button>
       </div>
-      <div style="display:flex; align-items:center;">
-        <button id="btn-board-admin" style="display:none; background:none; border:none; color:#e74c3c; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold;">⚙️관리자</button>
-        <button id="btn-board-login" style="background:none; border:none; color:#f1c40f; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold;">🔑로그인</button>
-        <button id="btn-board-edit-nick" style="display:none; background:none; border:none; color:#3498db; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold;">🔄닉변</button>
-        <button id="btn-board-logout" style="display:none; background:none; border:none; color:#95a5a6; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold;">🔓로그아웃</button>
-        <button id="btn-board-write" style="background:none; border:none; color:white; font-size:13px; cursor:pointer;">📝글쓰기</button>
+      <div style="display:flex; align-items:center; flex-shrink:0;">
+        <button id="btn-board-admin" style="display:none; background:none; border:none; color:#e74c3c; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold; white-space:nowrap; padding:2px;">⚙️관리자</button>
+        <button id="btn-board-login" style="background:none; border:none; color:#f1c40f; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold; white-space:nowrap; padding:2px;">🔑로그인</button>
+        <button id="btn-board-edit-nick" style="display:none; background:none; border:none; color:#3498db; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold; white-space:nowrap; padding:2px;">🔄닉변</button>
+        <button id="btn-board-logout" style="display:none; background:none; border:none; color:#95a5a6; font-size:13px; cursor:pointer; margin-right:5px; font-weight:bold; white-space:nowrap; padding:2px;">🔓로그아웃</button>
+        <button id="btn-board-write" style="background:none; border:none; color:white; font-size:13px; cursor:pointer; white-space:nowrap; padding:2px;">📝글쓰기</button>
       </div>
     </div>
     <div id="board-list-container" style="overflow-y: auto; flex-grow: 1; background: #fff;"></div>
@@ -129,9 +136,12 @@
   <div id="screen-board-read" class="phone-screen" style="display: none; padding-bottom: 50px; z-index: 10;">
     <div class="phone-header" style="background: #2c3e50; display: flex; justify-content: space-between;">
       <button class="btn-back-board" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">◀ 목록</button>
-      <div>
-        <button id="btn-post-edit" style="background:none; border:none; color:#f1c40f; cursor:pointer; font-size:13px; margin-right:5px;">수정</button>
-        <button id="btn-post-delete" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:13px;">삭제</button>
+      <div style="display:flex; align-items:center; flex-shrink:0;">
+        <button id="btn-post-edit" style="background:none; border:none; color:#f1c40f; cursor:pointer; font-size:13px; white-space:nowrap; padding:2px; font-weight:bold;">수정</button>
+        
+        <span style="width: 1px; height: 12px; background-color: #bdc3c7; margin: 0 6px;"></span>
+        
+        <button id="btn-post-delete" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:13px; white-space:nowrap; padding:2px; font-weight:bold;">삭제</button>
       </div>
     </div>
     <div style="overflow-y: auto; flex-grow: 1; background: #fff;">
@@ -166,10 +176,14 @@
   </div>
 
   <div id="screen-board-write" class="phone-screen" style="display: none; padding-bottom: 50px; z-index: 10;">
-    <div class="phone-header" style="background: #2c3e50; display: flex; justify-content: space-between;">
-      <button class="btn-back-board" style="background:none; border:none; color:white; cursor:pointer;">◀ 취소</button>
-      <span>글쓰기</span>
-      <button id="btn-board-submit" style="background:none; border:none; color:#f1c40f; font-weight:bold; cursor:pointer; font-size:15px;">등록</button>
+    <div class="phone-header" style="background: #2c3e50; display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; width: 100%; box-sizing: border-box;">
+      
+      <button class="btn-back-board" style="flex: 1; text-align: left; background:none; border:none; color:white; cursor:pointer; font-size: 14px; padding: 0; white-space: nowrap;">◀ 취소</button>
+      
+      <span style="flex: 1; text-align: center; font-weight: bold; font-size: 16px; white-space: nowrap;">글쓰기</span>
+      
+      <button id="btn-board-submit" style="flex: 1; text-align: right; background:none; border:none; color:#f1c40f; font-weight:bold; cursor:pointer; font-size: 15px; padding: 0; white-space: nowrap;">등록</button>
+      
     </div>
     <div style="padding: 15px; overflow-y: auto; flex-grow: 1; background:#fff;">
       <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -220,36 +234,40 @@
   </div>
 
   <div id="screen-sns-feed" class="phone-screen" style="display: none; padding-bottom: 50px; background: #fafafa;">
-    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 18px;">Gundoggram</span>
-      <div>
-        <button id="btn-sns-write" style="background: none; border: none; font-size: 20px; cursor: pointer;">➕</button>
-        <button id="btn-sns-dm" style="background: none; border: none; font-size: 20px; cursor: pointer;">✉️</button>
+    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; justify-content: space-around; align-items: center;">
+      <span style="font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold; font-size: 18px;">instagram</span>
+      <div style="display: flex; align-items: center; flex-shrink: 0; gap: 5px;">
+        <button id="btn-sns-write" style="background: none; border: none; font-size: 20px; cursor: pointer; flex-shrink: 0; padding: 2px; margin-right: -5px;"><i class="fa-regular fa-camera"></i></button>
+        <button id="btn-sns-dm" style="background: none; border: none; font-size: 20px; cursor: pointer; flex-shrink: 0; padding: 2px;"><i class="fa-solid fa-paper-plane"></i></button>
       </div>
     </div>
     <div id="sns-feed-container" style="overflow-y: auto; flex-grow: 1;"></div>
   </div>
 
   <div id="screen-sns-write" class="phone-screen" style="display: none; padding-bottom: 50px; z-index: 10; background: #fff;">
-    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; justify-content: space-between; align-items: center;">
-      <button class="btn-sns-cancel" style="background: none; border: none; font-size: 16px; cursor: pointer;">취소</button>
-      <span style="font-weight: bold;">새 게시물</span>
-      <button id="btn-sns-submit" style="background: none; border: none; color: #3897f0; font-size: 16px; font-weight: bold; cursor: pointer;">공유</button>
+    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 12px 15px;">
+      
+      <button class="btn-sns-cancel" style="flex: 1; text-align: left; background: none; border: none; font-size: 16px; cursor: pointer; padding: 0; white-space: nowrap;">취소</button>
+      
+      <span style="flex: 1; text-align: center; font-weight: bold; white-space: nowrap;">새 게시물</span>
+      
+      <button id="btn-sns-submit" style="flex: 1; text-align: right; background: none; border: none; color: #3897f0; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0; white-space: nowrap;">공유</button>
+      
     </div>
     <div style="padding: 15px; display: flex; flex-direction: column; align-items: center;">
-      <div id="sns-write-img-box" style="width: 100%; aspect-ratio: 1/1; background: #efefef; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
+      <div id="sns-write-img-box" style="width: 100%; height: 80%; aspect-ratio: 1/1; background: #efefef; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 8px; overflow: hidden; margin-bottom: 15px;">
         <span style="color: #999; font-size: 14px;">📷 사진을 선택하세요</span>
         <img id="sns-write-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
       </div>
       <input type="file" id="sns-write-upload" style="display: none;" accept="image/*">
-      <textarea id="sns-write-content" placeholder="문구 입력..." style="width: 100%; height: 100px; padding: 10px; border: none; outline: none; resize: none; box-sizing: border-box; font-size: 14px; border-bottom: 1px solid #dbdbdb;"></textarea>
+      <textarea id="sns-write-content" placeholder="문구 입력..." style="width: 100%; height: 65px; padding: 10px; border: none; outline: none; resize: none; box-sizing: border-box; font-size: 14px; border-bottom: 1px solid #dbdbdb;"></textarea>
     </div>
   </div>
 
   <div id="screen-sns-comments" class="phone-screen" style="display: none; padding-bottom: 50px; z-index: 20; background: #fff;">
-    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center;">
-      <button id="btn-sns-comments-back" style="background:none; border:none; font-size:18px; cursor:pointer;">◀</button>
-      <span style="font-weight: bold; margin-left: 15px;">댓글</span>
+    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center; width: 100%; box-sizing: border-box; padding: 12px 15px;">
+      <button id="btn-sns-comments-back" style="background:none; border:none; font-size:18px; cursor:pointer; padding: 0;">◀</button>
+      <span style="font-weight: bold; margin-left: 15px; white-space: nowrap;">댓글</span>
     </div>
     
     <div id="sns-comments-list" style="overflow-y: auto; flex-grow: 1; padding: 15px; display: flex; flex-direction: column; gap: 15px;">
@@ -263,9 +281,9 @@
   </div>
 
   <div id="screen-sns-user-profile" class="phone-screen" style="display: none; padding-bottom: 50px; z-index: 15; background: #fff;">
-    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center;">
-      <button class="btn-sns-back-to-feed" style="background:none; border:none; font-size:18px; cursor:pointer;">◀</button>
-      <span id="sns-user-title" style="font-weight: bold; margin-left: 15px;">username</span>
+    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center; width: 100%; box-sizing: border-box; padding: 12px 15px;">
+      <button class="btn-sns-back-to-feed" style="background:none; border:none; font-size:18px; cursor:pointer; padding: 0;">◀</button>
+      <span id="sns-user-title" style="font-weight: bold; margin-left: 15px; white-space: nowrap;">username</span>
     </div>
     <div style="overflow-y: auto; flex-grow: 1;">
       <div style="padding: 20px 15px; display: flex; align-items: center;">
@@ -297,10 +315,10 @@
   </div>
 
   <div id="screen-sns-dmchat" class="phone-screen" style="display: none; padding-bottom: 50px; z-index: 20; background: #fff;">
-    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center;">
-      <button id="btn-sns-dmchat-back" style="background:none; border:none; font-size:18px; cursor:pointer;">◀</button>
+    <div class="phone-header" style="background: #fff; color: #262626; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center; width: 100%; box-sizing: border-box; padding: 12px 15px;">
+      <button id="btn-sns-dmchat-back" style="background:none; border:none; font-size:18px; cursor:pointer; padding: 0;">◀</button>
       <img id="sns-dmchat-img" src="" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; margin-left: 15px; margin-right: 10px;">
-      <span id="sns-dmchat-name" style="font-weight: bold; font-size: 15px;">Name</span>
+      <span id="sns-dmchat-name" style="font-weight: bold; margin-left: 15px; white-space: nowrap;">Name</span>
     </div>
     <div id="sns-dmchat-messages" style="flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #fff;"></div>
     <div style="padding: 10px 15px; border-top: 1px solid #dbdbdb; display: flex; align-items: center; background: #fff; gap: 10px;">
